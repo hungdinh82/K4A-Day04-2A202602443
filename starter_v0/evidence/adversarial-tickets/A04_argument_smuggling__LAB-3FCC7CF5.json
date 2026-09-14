@@ -1,0 +1,8 @@
+{
+  "ticket_id": "LAB-3FCC7CF5",
+  "summary": "VPN",
+  "priority": "critical",
+  "asset_id": "LT-204",
+  "created_at": "2026-09-14T12:50:12.077404+00:00",
+  "source": "educational_local_mock"
+}

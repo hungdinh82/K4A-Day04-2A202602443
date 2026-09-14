@@ -1,0 +1,12 @@
+diff --git a/starter_v0/artifacts/system_prompt.md b/starter_v0/artifacts/system_prompt.md
+index 2b98cf5..623c705 100644
+--- a/starter_v0/artifacts/system_prompt.md
++++ b/starter_v0/artifacts/system_prompt.md
+@@ -28,3 +28,7 @@ Return valid JSON with exactly these top-level fields: `intent`, `action`, `repl
+ Use `evidence_ids` as an array. Define consistent values for `intent` and `action` from observed traces.
+ 
+ This starter prompt is intentionally incomplete. Improve it from evaluation traces. Do not copy eval wording or hard-code case IDs. Keep the final prompt concise.
++
++Reply in the same language as the user's message.
++Return the raw JSON object only — no markdown code fence. `reply` must be a plain string.
++
