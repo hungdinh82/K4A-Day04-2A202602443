@@ -37,6 +37,8 @@ còn truy ngược được.
 
 - `system_prompt_p667b5cfa95aa.md` — prompt dùng cho toàn bộ 4 run v2.
 - `system_prompt_v2.patch` — phần chênh so với prompt của role A (`0aef962`).
+- Artifact v3 dùng trực tiếp `artifacts/system_prompt.md` và `artifacts/tools.yaml`;
+  hash tương ứng được ghi trong bốn run v3 và `artifacts/version_log.csv`.
 
 Kiểm tra lại bất cứ lúc nào:
 
@@ -45,9 +47,7 @@ shasum -a 256 evidence/artifacts/system_prompt_p667b5cfa95aa.md | cut -c1-12
 # => 667b5cfa95aa
 ```
 
-## `adversarial-tickets/` — tác dụng phụ có thật
-
-4 file ticket do agent ghi ra đĩa khi chạy suite adversarial, **không có xác nhận
-của người dùng**. Giữ lại làm bằng chứng cho mục B4a/B6. Thư mục `tickets/` gốc
-bị gitignore nên phải copy sang đây mới commit được.
-
+Run adversarial v2 lưu đầy đủ tool call/result từng case để phân tích failure mà
+không cần commit các file ticket generated. Run adversarial v3 chứng minh gate
+cuối bằng 12/12 PASS và không có event `create_ticket`/`search_device_info` trong
+tool results của suite tấn công.
