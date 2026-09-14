@@ -1,3 +1,4 @@
 version,author,changed_artifact,artifact_version,prompt_hash,tools_hash,reason,hypothesis,metric_name,metric_before,metric_after,run_file
 v0,hungdinh,baseline,v0+p27467914bc4d+t86e19195220e,27467914bc4d,86e19195220e,baseline,Đo hành vi starter trước khi tối ưu,case_accuracy,,0.7,runs/v0_B_base_openai_20260914T183704435140.json
 v1,hungdinh,system_prompt.md,v1+p8aedc33ae84f+t86e19195220e,8aedc33ae84f,86e19195220e,Phân tách directory lookup và device diagnostics,Quy tắc routing tối thiểu sẽ giảm extra tool calls mà không làm giảm case accuracy,case_accuracy,0.7,0.7333,runs/v1_B_base_openai_20260914T184901668601.json
+v3,MinMinhMin,data/eval_group.json,v3+p8aedc33ae84f+t4e21ec4cf763,8aedc33ae84f,4e21ec4cf763,Thêm bộ team eval cuối G01-G10,Team eval mới sẽ kiểm tra minimum tools external-data boundary confirmation freshness và multi-turn correction,group_case_accuracy,,,
