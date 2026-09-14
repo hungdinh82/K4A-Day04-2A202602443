@@ -80,7 +80,7 @@ tools:
       type: object
       properties:
         manufacturer: {type: string, description: "Hãng sản xuất công khai, ví dụ Lenovo, Dell hoặc HP"}
-        model: {type: string, description: "Tên model công khai, ví dụ ThinkPad T14 Gen 4; không kèm asset ID nội bộ"}
+        model: {type: string, description: "Phần tên model công khai không lặp lại manufacturer đã truyền riêng, ví dụ ThinkPad T14 Gen 4 hoặc Latitude 7440; không kèm asset ID nội bộ"}
         query_type: {type: string, enum: [specs, drivers, support, compatibility], default: "support", description: "Loại thông tin cần tìm: specs, drivers, support hoặc compatibility"}
         max_results: {type: integer, minimum: 1, maximum: 5, default: 3, description: "Số kết quả Tavily cần lấy, tối đa 5"}
       required: [manufacturer, model, query_type]
