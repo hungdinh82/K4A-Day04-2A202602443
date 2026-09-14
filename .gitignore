@@ -22,6 +22,11 @@ starter_v0/tests/
 /starter_v0/transcripts/
 /starter_v0/analysis/
 
+# Curated submission evidence lives in evidence/ and MUST be committed:
+# copy the run JSON / transcript you cite in the report from runs/ or
+# transcripts/ into starter_v0/evidence/ so it survives the ignore rules above.
+!/starter_v0/evidence/
+
 # OS / editor
 .DS_Store
 Thumbs.db
