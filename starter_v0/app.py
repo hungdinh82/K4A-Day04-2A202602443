@@ -145,8 +145,16 @@ def load_interface(tools_path: Path) -> list[dict[str, Any]]:
 
 
 def init_session(version: str, provider_name: str) -> None:
+    # Tên transcript chốt ngay lần render đầu, nhưng sidebar cho đổi Version/Provider
+    # sau đó — nếu không dựng lại thì file mang nhãn cũ (v0) trong khi turn bên trong
+    # ghi artifact_version mới. Chỉ dựng lại khi phiên chưa có lượt nào, để không bỏ
+    # rơi file đang ghi dở giữa chừng.
     if "transcript" in st.session_state:
-        return
+        if st.session_state.get("turns"):
+            return
+        stale = st.session_state.get("session_label") != (version, provider_name)
+        if not stale:
+            return
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S%f")
     transcript_id = "_".join([safe_slug(version), safe_slug(provider_name), "ui", timestamp])
     st.session_state.transcript_id = transcript_id
@@ -158,13 +166,15 @@ def init_session(version: str, provider_name: str) -> None:
         "updated_at": now_iso(),
         "turns": [],
     }
+    st.session_state.session_label = (version, provider_name)
     st.session_state.history = []
     st.session_state.turns = []
     st.session_state.turn_index = 0
 
 
 def reset_session() -> None:
-    for key in ("transcript", "transcript_id", "transcript_path", "history", "turns", "turn_index", "pending"):
+    for key in ("transcript", "transcript_id", "transcript_path", "session_label",
+                "history", "turns", "turn_index", "pending"):
         st.session_state.pop(key, None)
 
 
@@ -266,7 +276,9 @@ def render_trace(turn: dict[str, Any]) -> None:
     with st.expander(header, expanded=True):
         if turn.get("error"):
             st.error(turn["error"])
-        if not rounds:
+        # `rounds` luôn có ít nhất một phần tử kể cả khi model trả lời thẳng, nên
+        # điều kiện phải là "không có tool call nào" chứ không phải "không có round".
+        if not total_calls:
             st.caption("Không có tool call nào trong lượt này.")
         for record in rounds:
             st.markdown(

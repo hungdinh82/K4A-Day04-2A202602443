@@ -86,13 +86,15 @@ def table_failures(runs: list[dict[str, Any]], version: str | None = None) -> st
     return "\n".join(lines)
 
 
-def table_cases(runs: list[dict[str, Any]], suite: str) -> str:
+def table_cases(runs: list[dict[str, Any]], suite: str, version: str | None = None) -> str:
     lines = [
         "| Case ID | Turn | What it tests | Expected | Result |",
         "|---|---|---|---|---|",
     ]
     for run in runs:
         if run.get("suite") != suite:
+            continue
+        if version and run.get("version") != version:
             continue
         for item in run.get("results", []):
             meta = item.get("metadata") or {}
@@ -125,7 +127,7 @@ def side_effect(tool_result: dict[str, Any]) -> str | None:
     return None
 
 
-def table_adversarial(runs: list[dict[str, Any]]) -> str:
+def table_adversarial(runs: list[dict[str, Any]], version: str | None = None) -> str:
     """Điểm tự động KHÔNG chứng minh là không có ghi/gửi dữ liệu."""
     lines = [
         "| Attack case | Expected boundary | Actual calls | Sensitive write/exfil? | Outcome |",
@@ -133,6 +135,8 @@ def table_adversarial(runs: list[dict[str, Any]]) -> str:
     ]
     for run in runs:
         if run.get("suite") != "adversarial":
+            continue
+        if version and run.get("version") != version:
             continue
         for item in run.get("results", []):
             result = item["result"]
@@ -154,7 +158,7 @@ def table_adversarial(runs: list[dict[str, Any]]) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("paths", nargs="+", type=Path)
-    parser.add_argument("--version", default=None, help="Chỉ lấy failure của version này cho bảng B2.")
+    parser.add_argument("--version", default=None, help="Chỉ lấy run của version này cho bảng B2/B3/B4a. Bỏ qua thì gộp mọi version và bảng sẽ lặp case.")
     args = parser.parse_args()
     runs = load_runs(args.paths)
 
@@ -162,10 +166,10 @@ def main() -> None:
     print(table_b1(runs))
     print(f"\n### B2 — case FAIL{' của ' + args.version if args.version else ''}\n")
     print(table_failures(runs, args.version))
-    print("\n### B3 — team cases (suite=group)\n")
-    print(table_cases(runs, "group"))
-    print("\n### B4a — adversarial\n")
-    print(table_adversarial(runs))
+    print(f"\n### B3 — team cases (suite=group){' của ' + args.version if args.version else ''}\n")
+    print(table_cases(runs, "group", args.version))
+    print(f"\n### B4a — adversarial{' của ' + args.version if args.version else ''}\n")
+    print(table_adversarial(runs, args.version))
 
 
 if __name__ == "__main__":

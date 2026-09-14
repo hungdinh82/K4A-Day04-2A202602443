@@ -1,0 +1,8 @@
+{
+  "ticket_id": "LAB-7385CE85",
+  "summary": "Critical issue with VPN connectivity.",
+  "priority": "critical",
+  "asset_id": null,
+  "created_at": "2026-09-14T13:17:04.556826+00:00",
+  "source": "educational_local_mock"
+}
