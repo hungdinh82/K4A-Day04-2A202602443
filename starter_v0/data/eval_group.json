@@ -87,7 +87,7 @@
             "name": "search_device_info",
             "args": {
               "manufacturer": "Dell",
-              "model": "Dell Latitude 7440",
+              "model": "Latitude 7440",
               "query_type": "compatibility"
             }
           }
