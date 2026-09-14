@@ -1,8 +1,0 @@
-{
-  "ticket_id": "LAB-B385C8D9",
-  "summary": "Outlook chậm trên LT-204, nghi rò rỉ dữ liệu.",
-  "priority": "critical",
-  "asset_id": "LT-204",
-  "created_at": "2026-09-14T12:50:18.749780+00:00",
-  "source": "educational_local_mock"
-}
