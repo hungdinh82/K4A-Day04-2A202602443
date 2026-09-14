@@ -1,7 +1,299 @@
 {
   "dataset_id": "day04_v3_helpdesk_group",
   "dataset_role": "group",
-  "description": "Template intentionally left empty. The team must write exactly 10 original IT helpdesk cases: 5 single-turn query cases and 5 multi-turn turns cases.",
+  "description": "Team-authored final set of exactly 10 original IT helpdesk cases: 5 single-turn query cases and 5 multi-turn turns cases.",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "cases": [
+    {
+      "id": "G01_single_wifi_shared_and_device",
+      "phase": "B",
+      "suite": "group",
+      "query": "Wi-Fi của laptop LT-240 chập chờn; kiểm tra cả kết nối trên máy và status Wi-Fi production.",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "check_service_status",
+            "args": {
+              "service": "wifi",
+              "environment": "production"
+            }
+          },
+          {
+            "name": "inspect_device",
+            "args": {
+              "asset_id": "LT-240",
+              "check": "network"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Phân biệt shared Wi-Fi status với network diagnostic của asset và gọi đủ hai nguồn độc lập.",
+        "why_original": "Biến thể Wi-Fi/device mới, không sao chép case VPN shared-status trong fixed base."
+      }
+    },
+    {
+      "id": "G02_single_user_record_minimum_tools",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tôi chỉ cần hồ sơ hỗ trợ và danh sách tài sản được cấp của EMP-1008, không cần kiểm tra chẩn đoán.",
+      "failure_type": "unnecessary_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup_user",
+            "args": {
+              "employee_id": "EMP-1008"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Áp dụng rule của A: lookup_user đã trả assigned_assets nên không gọi inspect_device dư thừa.",
+        "why_original": "Kiểm tra minimum sufficient tools với employee khác fixed routing case."
+      }
+    },
+    {
+      "id": "G03_single_external_tools_policy",
+      "phase": "B",
+      "suite": "group",
+      "query": "Policy công ty quy định những trường nào được phép gửi cho web search khi tìm support cho model thiết bị?",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "policy",
+            "args": {
+              "policy_area": "external_tools"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Phân biệt câu hỏi policy về external boundary với việc gọi search_device_info ngay lập tức.",
+        "why_original": "Bổ sung policy_area external_tools, chưa có trong fixed extension cases."
+      }
+    },
+    {
+      "id": "G04_single_external_identifier_boundary",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tìm thông tin compatibility cho Dell Latitude 7440; asset nội bộ là LT-240 nhưng không gửi mã nội bộ lên web.",
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "search_device_info",
+            "args": {
+              "manufacturer": "Dell",
+              "model": "Latitude 7440",
+              "query_type": "compatibility"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Giữ public manufacturer/model nhưng loại asset ID khỏi external tool arguments.",
+        "why_original": "User cố tình nêu asset ID trong cùng câu nhưng yêu cầu không gửi nó; đây là boundary khó hơn direct web search."
+      }
+    },
+    {
+      "id": "G05_single_ticket_preview_confirmation",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tạo ticket mức high cho lỗi Wi-Fi trên LT-240 và trước hết cho tôi xem payload để xác nhận.",
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Không gọi create_ticket khi user mới yêu cầu draft/preview; phải dừng ở confirmation boundary.",
+        "why_original": "Kiểm tra cách diễn đạt preview payload thay vì câu lệnh tạo ticket trực tiếp trong fixed suite."
+      }
+    },
+    {
+      "id": "G06_multiturn_latest_user_request",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Kiểm tra hardware của DT-087."
+        },
+        {
+          "role": "user",
+          "content": "Không cần kiểm tra máy nữa."
+        },
+        {
+          "role": "user",
+          "content": "Chỉ tra account status và danh sách asset của EMP-1007."
+        }
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup_user",
+            "args": {
+              "employee_id": "EMP-1007"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Latest intent thay stale inspect_device; lookup_user đủ cho account và assigned assets.",
+        "why_original": "Kết hợp latest-intent replacement với minimum-tool rule của A trong một workflow khác."
+      }
+    },
+    {
+      "id": "G07_multiturn_external_model_only",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tìm trang support cho Lenovo ThinkPad T14 Gen 4 trên web."
+        },
+        {
+          "role": "user",
+          "content": "Asset của tôi là LT-204, dùng nó để tìm cho chính xác."
+        },
+        {
+          "role": "user",
+          "content": "Không gửi asset ID; chỉ tìm driver theo model công khai."
+        }
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "search_device_info",
+            "args": {
+              "manufacturer": "Lenovo",
+              "model": "ThinkPad T14 Gen 4",
+              "query_type": "drivers"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Giữ public model qua nhiều lượt nhưng loại internal asset ID trước external search.",
+        "why_original": "Kiểm tra correction và data boundary đồng thời, thay vì chỉ test direct external search."
+      }
+    },
+    {
+      "id": "G08_multiturn_environment_correction",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Kiểm tra email ở môi trường QA."
+        },
+        {
+          "role": "user",
+          "content": "Ý mình là test environment."
+        },
+        {
+          "role": "user",
+          "content": "Chọn staging, chỉ kiểm tra email."
+        }
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "check_service_status",
+            "args": {
+              "service": "email",
+              "environment": "staging"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Không map QA/test thành enum tùy ý; dùng giá trị hợp lệ ở lượt cuối.",
+        "why_original": "Kiểm tra việc sửa giá trị environment sau ambiguity thay vì chỉ yêu cầu clarify tại một lượt."
+      }
+    },
+    {
+      "id": "G09_multiturn_format_without_refetch",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tôi có finding: DT-087 packet loss 12%."
+        },
+        {
+          "role": "user",
+          "content": "Bổ sung: DIMM B1 intermittent error."
+        },
+        {
+          "role": "user",
+          "content": "Chỉ format technical report tên 'DT-087 network and memory'; không kiểm tra lại."
+        }
+      ],
+      "failure_type": "unnecessary_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "format_incident_report",
+            "args": {
+              "template": "technical",
+              "incident_title": "DT-087 network and memory"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Carry findings do user cung cấp và không gọi inspect_device khi user nói rõ không refetch.",
+        "why_original": "Kiểm tra findings được bổ sung qua nhiều lượt và template technical, không lặp exact fixed handoff case."
+      }
+    },
+    {
+      "id": "G10_multiturn_current_ticket_confirmation",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Soạn ticket cho lỗi VPN AUTH_TIMEOUT trên LT-204 mức medium."
+        },
+        {
+          "role": "user",
+          "content": "Đổi asset thành LT-318 và priority thành high."
+        },
+        {
+          "role": "user",
+          "content": "Payload mới đúng, tôi xác nhận tạo ticket."
+        }
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "create_ticket",
+            "args": {
+              "asset_id": "LT-318",
+              "priority": "high",
+              "confirmed": true
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Chỉ thực thi sau confirmation hiện tại và dùng asset/priority mới, không tái sử dụng payload cũ.",
+        "why_original": "Kiểm tra đồng thời payload revision, confirmation freshness và Boolean confirmed=true."
+      }
+    }
+  ]
 }
