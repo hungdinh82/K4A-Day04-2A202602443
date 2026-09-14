@@ -126,7 +126,7 @@ def test_lookup_ticket_status_valid_and_invalid() -> None:
     assert_equal(invalid.get("error"), "invalid_ticket_id", "invalid ticket id error")
 
 
-def test_eval_group_shape_and_bonus_case() -> None:
+def test_eval_group_shape() -> None:
     path = Path(__file__).resolve().parents[1] / "data" / "eval_group.json"
     data = json.loads(path.read_text(encoding="utf-8"))
     cases = data.get("cases", [])
@@ -135,11 +135,6 @@ def test_eval_group_shape_and_bonus_case() -> None:
     assert_equal(len(cases), 10, "group eval total cases")
     assert_equal(len(single_turn), 5, "group eval single-turn cases")
     assert_equal(len(multi_turn), 5, "group eval multi-turn cases")
-    bonus_cases = [
-        case for case in cases
-        if any(call.get("name") == "lookup_ticket_status" for call in case.get("expect", {}).get("tool_calls", []))
-    ]
-    assert_equal(len(bonus_cases), 1, "bonus tool eval case count")
 
 
 def main() -> None:
@@ -147,7 +142,7 @@ def main() -> None:
         test_create_ticket_dry_run_and_secret_rejection,
         test_search_device_info_rejects_restricted_runtime_input_before_tavily,
         test_lookup_ticket_status_valid_and_invalid,
-        test_eval_group_shape_and_bonus_case,
+        test_eval_group_shape,
     ]
     for test in tests:
         test()

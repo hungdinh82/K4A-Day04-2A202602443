@@ -2,8 +2,8 @@
 
 ## Team
 
-- **Nhóm:** Cần điền tên nhóm.
-- **Thành viên:** Xem `../TEAMMATES.md`; cần bổ sung họ tên và MSSV trước khi nộp.
+- **Nhóm:** K4-DAY04.
+- **Thành viên:** 5 thành viên đã được ghi đầy đủ tại `../TEAMMATES.md`.
 - **Provider/model:** OpenAI / `gpt-4o-mini`.
 - **Artifact cuối:** `v3+p4b2ba9f001d7+t0f0693fc72b2`.
 
@@ -42,7 +42,8 @@ streamlit run app.py
 | `create_ticket` | Ghi ticket local sau xác nhận | optional có sẵn |
 | `search_device_info` | Tìm support/specs/drivers công khai qua Tavily | optional có sẵn |
 
-Nhóm không xây thêm bonus tool.
+Nhóm có thêm bonus utility local `lookup_ticket_status`; utility này có smoke test
+riêng và không thay đổi bộ artifact v3 gồm 9 tool đã dùng để đo 62 case.
 
 ## A3. Câu hỏi mẫu
 
@@ -204,7 +205,8 @@ v2. V3 chuyển boundary xuống runtime, đưa adversarial 0.5000 → 1.0000 v�
 ba suite còn lại ở 1.0000.
 
 Phân công được thể hiện qua lịch sử Git: role A phụ trách prompt, role B tool
-schema, role C team eval, role D UI/report/evidence. Nếu có thêm một vòng, nhóm
+schema, role C team eval, role D UI/report/evidence, role E security hardening và
+bonus utility. Nếu có thêm một vòng, nhóm
 sẽ bổ sung stateful confirmation token gắn với hash payload thay cho heuristic
 ngôn ngữ, đồng thời thêm unit tests ở repository riêng của giảng viên.
 
@@ -216,8 +218,7 @@ Mỗi reflection cần trỏ đến file, commit hoặc pull request có thật 
 có thể đối chiếu đóng góp.
 
 ### Vũ Đức Minh — 2A202602895
-- **Nếu làm lại, tôi sẽ cải thiện điều gì:**
-Nếu làm lại, tôi sẽ chạy baseline và lưu lại trace ngay từ đầu trước khi chỉnh nhiều thứ, sau đó chia thay đổi thành các version nhỏ hơn để dễ đo tác động từng hypothesis. Tôi cũng sẽ chuẩn bị smoke test riêng cho từng bonus tool sớm hơn, và cập nhật report/eval evidence song song với code để tránh thiếu artifact khi gần nộp.
+
 - **Vai trò/phần việc được nhận:** Role C — Eval & Red-Team. Viết 10 test case gồm 5 single-turn và 5 multi-turn, đồng thời phân tích nhược điểm các test case gốc để tạo test case cho nhóm.
 - **Những gì tôi đã thay đổi trong repo chung:** Tôi đã xây dựng bộ test case G01–G10 trong eval_group.json, bao phủ routing nhiều tool, minimum sufficient tools, multi-turn correction, latest intent, external-data boundary, confirmation và format report. Tôi cũng bổ sung version v3 cho team eval trong version_log.csv.
 - **File hoặc artifact liên quan:** starter_v0/data/eval_group.json, starter_v0/artifacts/version_log.csv
@@ -231,16 +232,16 @@ Nếu làm lại, tôi sẽ chạy baseline và lưu lại trace ngay từ đầ
 ### Nguyễn Ngọc Vĩnh — 2A202602833
 
 - **Vai trò/phần việc được nhận:**
-Tool & Schema Engineer. Tôi phụ trách quản lý `tools.yaml`, chuẩn hóa enum và argument schema, đồng bộ tên tool giữa declaration và registry, kiểm tra Tavily external-search boundary, và bổ sung bonus tools cho nhóm.
+Tool & Schema Engineer. Tôi phụ trách quản lý `tools.yaml`, chuẩn hóa enum và argument schema, đồng bộ tên tool giữa declaration và registry, và kiểm tra Tavily external-search boundary.
 
 - **Những gì tôi đã thay đổi trong repo chung:**
-Tôi đã cải thiện mô tả và schema trong `tools.yaml` để model chọn đúng tool hơn, phân biệt rõ employee ID với asset ID, shared service với device diagnostic, policy với knowledge base, và ticket action với confirmation flow. Tôi cũng siết schema `create_ticket` để chỉ gọi khi `confirmed=true`, tránh dùng tool này như dry-run. Ngoài ra, tôi bổ sung 2 bonus tools: `approved_software_catalog` để tra cứu phần mềm được phê duyệt và `lookup_ticket_status` để tra cứu trạng thái ticket cũ bằng dữ liệu giả lập.
+Tôi đã cải thiện mô tả và schema trong `tools.yaml` để model chọn đúng tool hơn, phân biệt rõ employee ID với asset ID, shared service với device diagnostic, policy với knowledge base, và ticket action với confirmation flow. Tôi cũng siết schema `create_ticket` để chỉ gọi khi `confirmed=true`, tránh dùng tool này như dry-run.
 
 - **File hoặc artifact liên quan:**
-`starter_v0/artifacts/tools.yaml`; `starter_v0/tools/__init__.py`; `starter_v0/tools/approved_software_catalog/tool.py`; `starter_v0/tools/approved_software_catalog/TOOL.md`; `starter_v0/tools/lookup_ticket_status/tool.py`; `starter_v0/tools/lookup_ticket_status/TOOL.md`; `starter_v0/helpdesk_data/approved_software.json`; `starter_v0/helpdesk_data/ticket_status.json`; `starter_v0/data/eval_group.json`; `starter_v0/artifacts/version_log.csv`; `starter_v0/artifacts/REPORT.md`.
+`starter_v0/artifacts/tools.yaml`; `starter_v0/artifacts/version_log.csv`; `starter_v0/artifacts/REPORT.md`.
 
 - **Commit hash hoặc pull request:**
-Điền sau khi commit/push phần việc của tôi: `579804b, 0d98a29`.
+`579804b`, `0d98a29`, `8e39a00`.
 
 - **Một quyết định kỹ thuật tôi đã đưa ra và lý do:**
 Tôi quyết định chỉnh `create_ticket.confirmed` trong schema thành boolean chỉ cho phép `true` và đưa `confirmed` vào `required`. Lý do là trong các eval trace, model từng gọi `create_ticket` với `confirmed=false`, gây lỗi confirmation boundary. Việc siết schema giúp model hiểu rằng nếu chưa có xác nhận cuối cùng thì phải dùng `clarify yes_no`, không được gọi action tool.
@@ -260,7 +261,7 @@ không dùng chính phần reflection làm bằng chứng duy nhất cho đóng 
 
 ## C3. Final checkout
 
-- [ ] `TEAMMATES.md` có đủ họ tên, MSSV, GitHub username và vai trò.
+- [x] `TEAMMATES.md` có đủ họ tên, MSSV, GitHub username và vai trò.
 - [x] Mỗi Git identity hiện có contribution trong lịch sử branch.
 - [x] Reflection chung dựa trên evidence thật đã hoàn thành.
 - [ ] Mỗi thành viên tự viết và commit self-reflection.
