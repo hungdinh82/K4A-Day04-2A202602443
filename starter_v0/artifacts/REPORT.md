@@ -135,16 +135,16 @@ có thể đối chiếu đóng góp.
 
 Sao chép mẫu dưới đây cho từng thành viên:
 
-### Họ tên — MSSV
+### Vũ Đức Minh - 2A202602895
 
-- **Vai trò/phần việc được nhận:**
-- **Những gì tôi đã thay đổi trong repo chung:**
-- **File hoặc artifact liên quan:**
-- **Commit hash hoặc pull request:**
-- **Một quyết định kỹ thuật tôi đã đưa ra và lý do:**
-- **Khó khăn tôi gặp và cách tôi xử lý:**
-- **Điều tôi học được từ phần việc này:**
-- **Nếu làm lại, tôi sẽ cải thiện điều gì:**
+- **Vai trò/phần việc được nhận:** Role C — Eval & Red-Team. Viết 10 test case gồm 5 single-turn và 5 multi-turn, đồng thời phân tích nhược điểm các test case gốc để tạo test case cho nhóm
+- **Những gì tôi đã thay đổi trong repo chung:** Tôi đã xây dựng bộ test case G01–G10 trong eval_group.json, bao phủ routing nhiều tool, minimum sufficient tools, multi-turn correction, latest intent, external-data boundary, confirmation và format report. Tôi cũng bổ sung version v3 cho team eval trong version_log.csv.
+- **File hoặc artifact liên quan:** starter_v0/data/eval_group.json, starter_v0/artifacts/version_log.csv
+- **Commit hash hoặc pull request:** 2be3c6a — feat_C
+- **Một quyết định kỹ thuật tôi đã đưa ra và lý do:** ôi thiết kế team eval theo hướng kiểm tra các boundary còn thiếu sau khi Role A và B hoàn thành, thay vì chỉ lặp lại fixed test. Đặc biệt, các case G04, G07 kiểm tra không gửi asset ID ra external search; G05, G10 kiểm tra confirmation; G02, G06 kiểm tra nguyên tắc minimum sufficient tools.
+- **Khó khăn tôi gặp và cách tôi xử lý:** Khó khăn chính là phân biệt lỗi routing, lỗi arguments, lỗi context và lỗi security boundary.
+- **Điều tôi học được từ phần việc này:** Automatic PASS/FAIL chỉ phản ánh tool call và một phần arguments, chưa chứng minh agent an toàn. Cần kiểm tra thêm tool results, transcript, filesystem, ticket được tạo và dữ liệu gửi tới external tool.
+- **Nếu làm lại, tôi sẽ cải thiện điều gì:** Tôi sẽ thống nhất artifact của Role A/B sớm hơn, chạy baseline group eval trước khi freeze test case, lưu run evidence ngay sau mỗi version 
 
 Mỗi thành viên phải tự commit phần self-reflection của mình bằng Git identity
 tương ứng. Reflection phải dẫn đến contribution artifact/commit đã nêu ở trên,
