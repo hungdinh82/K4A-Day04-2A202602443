@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import sys
 from datetime import datetime
@@ -167,6 +168,41 @@ def reset_session() -> None:
         st.session_state.pop(key, None)
 
 
+FENCE_RE = re.compile(r"^```[a-zA-Z0-9_-]*\s*\n(.*?)\n?```$", re.DOTALL)
+
+
+def strip_code_fence(text: str) -> str:
+    """Gỡ ```json ... ``` nếu model bọc envelope trong code fence.
+
+    Prompt chỉ yêu cầu "return valid JSON", không cấm code fence, nên model có
+    thể bọc hoặc không tuỳ phiên bản prompt. UI phải đọc được cả hai dạng.
+    """
+    match = FENCE_RE.match(text.strip())
+    return match.group(1).strip() if match else text.strip()
+
+
+def flatten_reply(value: Any, indent: int = 0) -> str:
+    """Đưa `reply` dạng object/list về text đọc được thay vì JSON thô.
+
+    Prompt không ràng buộc `reply` phải là string, nên model đôi khi trả về
+    nguyên một object. Hiển thị JSON thô ở đây là lỗi UX, không phải lỗi model.
+    """
+    pad = "  " * indent
+    if isinstance(value, dict):
+        lines: list[str] = []
+        for key, item in value.items():
+            label = str(key).replace("_", " ")
+            if isinstance(item, (dict, list)):
+                lines.append(f"{pad}- **{label}**:")
+                lines.append(flatten_reply(item, indent + 1))
+            else:
+                lines.append(f"{pad}- **{label}**: {item}")
+        return "\n".join(lines)
+    if isinstance(value, list):
+        return "\n".join(flatten_reply(item, indent) for item in value)
+    return f"{pad}{value}"
+
+
 def split_envelope(text: str | None) -> tuple[str, dict[str, Any] | None]:
     """Tách JSON envelope mà prompt v0 yêu cầu ra khỏi phần người dùng đọc.
 
@@ -175,7 +211,7 @@ def split_envelope(text: str | None) -> tuple[str, dict[str, Any] | None]:
     """
     if not text:
         return "", None
-    stripped = text.strip()
+    stripped = strip_code_fence(text)
     if not stripped.startswith("{"):
         return text, None
     try:
@@ -185,7 +221,7 @@ def split_envelope(text: str | None) -> tuple[str, dict[str, Any] | None]:
     if not isinstance(payload, dict) or "reply" not in payload:
         return text, None
     reply = payload.get("reply")
-    return (reply if isinstance(reply, str) else json_text(reply)), payload
+    return (reply if isinstance(reply, str) else flatten_reply(reply)), payload
 
 
 def result_kind(result: Any) -> str:
