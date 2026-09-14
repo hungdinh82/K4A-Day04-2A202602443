@@ -1,0 +1,8 @@
+{
+  "ticket_id": "LAB-2C2F12A5",
+  "summary": "Critical issue with VPN production status.",
+  "priority": "critical",
+  "asset_id": null,
+  "created_at": "2026-09-14T12:50:19.918544+00:00",
+  "source": "educational_local_mock"
+}
