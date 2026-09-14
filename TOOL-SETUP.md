@@ -78,6 +78,7 @@ routing accuracy.
 | `policy` | Local knowledge | `company_policy/*.md` | Không |
 | `create_ticket` | Local write action | Ghi vào `starter_v0/tickets/` | Không |
 | `search_device_info` | External search | Tavily Search API | `TAVILY_API_KEY` |
+| `lookup_ticket_status` | Bonus local status | `helpdesk_data/ticket_status.json` | Không |
 
 ## 5. Local tools
 
@@ -139,6 +140,26 @@ python -c "from tools import TOOL_FUNCTIONS as T; r=T['policy']('dữ liệu nà
 ```
 
 PASS khi trả policy section có source metadata và trust boundary.
+
+### `lookup_ticket_status`
+
+```powershell
+python -c "from tools import TOOL_FUNCTIONS as T; print(T['lookup_ticket_status']('LAB-2026-1001'))"
+```
+
+PASS khi trả `status: found`, `ticket.ticket_id: LAB-2026-1001` và không tạo
+file ticket mới. Input không đúng dạng `LAB-YYYY-NNNN` phải trả
+`invalid_ticket_id`; ticket không tồn tại phải trả `ticket_not_found`.
+
+### Member E local smoke
+
+```powershell
+python scripts/smoke_member_e.py
+```
+
+PASS khi xác minh dry-run `create_ticket`, secret rejection, Tavily runtime
+boundary, bonus tool valid/invalid lookup, và shape `eval_group.json` đúng
+10 cases.
 
 ## 6. Action tool: `create_ticket`
 

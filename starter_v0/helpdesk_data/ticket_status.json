@@ -1,0 +1,50 @@
+{
+  "snapshot_at": "2026-09-14T09:00:00+07:00",
+  "tickets": [
+    {
+      "ticket_id": "LAB-2026-1001",
+      "summary": "VPN authentication failures on LT-204",
+      "priority": "high",
+      "state": "in_progress",
+      "owner_group": "IT Service Desk",
+      "asset_id": "LT-204",
+      "created_at": "2026-09-14T07:48:00+07:00",
+      "last_updated": "2026-09-14T08:32:00+07:00",
+      "next_step": "Correlate device clock drift with VPN incident INC-1042.",
+      "history": [
+        {"at": "2026-09-14T07:48:00+07:00", "event": "ticket_created", "note": "User confirmed ticket creation for VPN AUTH_TIMEOUT."},
+        {"at": "2026-09-14T08:32:00+07:00", "event": "triage_started", "note": "Assigned to IT Service Desk."}
+      ]
+    },
+    {
+      "ticket_id": "LAB-2026-1002",
+      "summary": "Wi-Fi unavailable on LT-240",
+      "priority": "medium",
+      "state": "waiting_on_user",
+      "owner_group": "Endpoint Support",
+      "asset_id": "LT-240",
+      "created_at": "2026-09-14T08:05:00+07:00",
+      "last_updated": "2026-09-14T08:47:00+07:00",
+      "next_step": "Ask user to test wired network or move to floor 3.",
+      "history": [
+        {"at": "2026-09-14T08:05:00+07:00", "event": "ticket_created", "note": "Wi-Fi diagnostic showed corporate Wi-Fi offline."},
+        {"at": "2026-09-14T08:47:00+07:00", "event": "user_action_requested", "note": "Waiting for connectivity retest."}
+      ]
+    },
+    {
+      "ticket_id": "LAB-2026-1003",
+      "summary": "Printer PR-404 tray sensor warning",
+      "priority": "low",
+      "state": "resolved",
+      "owner_group": "Office IT",
+      "asset_id": "PR-404",
+      "created_at": "2026-09-13T15:20:00+07:00",
+      "last_updated": "2026-09-14T08:10:00+07:00",
+      "next_step": "No action required unless the warning returns.",
+      "history": [
+        {"at": "2026-09-13T15:20:00+07:00", "event": "ticket_created", "note": "Tray 2 warning reported."},
+        {"at": "2026-09-14T08:10:00+07:00", "event": "resolved", "note": "Sensor reset after onsite check."}
+      ]
+    }
+  ]
+}

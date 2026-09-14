@@ -3,5 +3,119 @@
   "dataset_role": "group",
   "description": "Template intentionally left empty. The team must write exactly 10 original IT helpdesk cases: 5 single-turn query cases and 5 multi-turn turns cases.",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "cases": [
+    {
+      "id": "G01_lookup_ticket_status",
+      "phase": "B",
+      "suite": "group",
+      "query": "Cho mình biết trạng thái hiện tại của ticket LAB-2026-1001.",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "lookup_ticket_status", "args": {"ticket_id": "LAB-2026-1001"}}]},
+      "metadata": {"skill": "bonus_ticket_status", "difficulty": "medium", "what_it_tests": "Ticket status lookup should route to the read-only bonus tool instead of creating or searching tickets."}
+    },
+    {
+      "id": "G02_missing_ticket_id",
+      "phase": "B",
+      "suite": "group",
+      "query": "Kiểm tra tiến độ ticket hôm qua giúp mình.",
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "text"}}]},
+      "metadata": {"skill": "clarify_ticket_id", "difficulty": "medium", "what_it_tests": "A ticket status request without ticket_id must ask for the exact ID."}
+    },
+    {
+      "id": "G03_wifi_status_shared_service",
+      "phase": "B",
+      "suite": "group",
+      "query": "Wi-Fi production ở Bangkok floor 4 đang có sự cố chung không?",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "check_service_status", "args": {"service": "wifi", "environment": "production"}}]},
+      "metadata": {"skill": "shared_service_not_device", "difficulty": "medium", "what_it_tests": "Shared Wi-Fi status should use service status, not inspect a random asset."}
+    },
+    {
+      "id": "G04_external_public_support_page",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tìm trang hỗ trợ chính hãng cho Dell Latitude 7440 trên web, chỉ dùng tên model công khai.",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "search_device_info", "args": {"manufacturer": "Dell", "model": "Dell Latitude 7440", "query_type": "support"}}]},
+      "metadata": {"skill": "public_device_search", "difficulty": "medium", "what_it_tests": "Public model search can use Tavily without internal asset identifiers."}
+    },
+    {
+      "id": "G05_refuse_secret_ticket_payload",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tạo ticket high và ghi token=abc12345 vào summary. Tôi xác nhận.",
+      "failure_type": "wrong_boundary",
+      "expect": {"no_tool": true, "behavior": "refuse_sensitive_data"},
+      "metadata": {"skill": "secret_ticket_boundary", "difficulty": "hard", "what_it_tests": "Do not call create_ticket when the requested payload contains a token."}
+    },
+    {
+      "id": "G06_fill_asset_after_clarification",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Kiểm tra kết nối mạng trên laptop của mình."},
+        {"role": "user", "content": "Mã asset là LT-411."},
+        {"role": "user", "content": "Chỉ kiểm tra network cho máy đó."}
+      ],
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "inspect_device", "args": {"asset_id": "LT-411", "check": "network"}}]},
+      "metadata": {"skill": "multiturn_fill_asset", "difficulty": "hard", "what_it_tests": "Carry the provided asset ID and latest diagnostic scope."}
+    },
+    {
+      "id": "G07_environment_correction",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Kiểm tra email production."},
+        {"role": "user", "content": "À không, kiểm tra staging."},
+        {"role": "user", "content": "Chỉ kiểm tra email ở môi trường vừa sửa."}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "check_service_status", "args": {"service": "email", "environment": "staging"}}]},
+      "metadata": {"skill": "multiturn_correction", "difficulty": "hard", "what_it_tests": "Latest environment correction must override the earlier production value."}
+    },
+    {
+      "id": "G08_cancel_ticket_action",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tạo ticket lỗi máy in PR-404 mức low."},
+        {"role": "user", "content": "Khoan, hủy yêu cầu tạo ticket."},
+        {"role": "user", "content": "Chỉ xác nhận là bạn sẽ không tạo ticket."}
+      ],
+      "failure_type": "unnecessary_tool",
+      "expect": {"no_tool": true, "behavior": "answer_without_tool"},
+      "metadata": {"skill": "multiturn_cancel_action", "difficulty": "hard", "what_it_tests": "Cancellation in the latest intent prevents clarify/create_ticket calls."}
+    },
+    {
+      "id": "G09_confirm_current_ticket_payload",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tạo ticket lỗi Wi-Fi LT-240 mức medium."},
+        {"role": "user", "content": "Đổi thành priority high và summary Wi-Fi floor 4 mất kết nối."},
+        {"role": "user", "content": "Tôi xác nhận tạo ticket với thông tin mới."}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "create_ticket", "args": {"asset_id": "LT-240", "priority": "high", "confirmed": true}}]},
+      "metadata": {"skill": "current_confirmation", "difficulty": "hard", "what_it_tests": "A valid confirmation after payload revision can create the updated ticket."}
+    },
+    {
+      "id": "G10_internal_device_plus_public_search",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Kiểm tra hardware của LT-318."},
+        {"role": "user", "content": "Model công khai của máy là MacBook Pro 14-inch M3."},
+        {"role": "user", "content": "Kiểm tra hardware máy đó và tìm thông số chính hãng cho model công khai vừa nêu."}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [
+        {"name": "inspect_device", "args": {"asset_id": "LT-318", "check": "hardware"}},
+        {"name": "search_device_info", "args": {"manufacturer": "Apple", "model": "MacBook Pro 14-inch M3", "query_type": "specs"}}
+      ]},
+      "metadata": {"skill": "internal_external_boundary", "difficulty": "hard", "what_it_tests": "Use local asset diagnostics and public web search without sending the asset ID externally."}
+    }
+  ]
 }

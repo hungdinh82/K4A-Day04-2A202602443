@@ -55,7 +55,7 @@ Học viên nhận được:
 | Agent runtime | `agent.py`, `chat.py`, provider adapters và tool loop |
 | Baseline prompt | `artifacts/system_prompt.md`, cố ý chưa hoàn chỉnh |
 | Tool declarations | `artifacts/tools.yaml`, cần cải thiện bằng evidence |
-| Tool implementations | 9 tool nội bộ, action và external-search có sẵn |
+| Tool implementations | 9 starter tools plus the team bonus tool |
 | Mock data | 9 assets, 10 users, service status, 11 KB articles và IT policies |
 | Fixed eval | Base, extension và adversarial datasets |
 | Team eval template | `data/eval_group.json` để nhóm tự viết case |
@@ -78,6 +78,7 @@ Học viên nhận được:
 - `policy`: tìm trong IT policy local.
 - `create_ticket`: tạo ticket local sau explicit confirmation.
 - `search_device_info`: dùng Tavily tìm specs, driver hoặc support page công khai.
+- `lookup_ticket_status`: bonus tool đọc trạng thái ticket giả lập hiện có.
 
 Các advanced tools có sẵn không được tính là tool mới do nhóm tự xây.
 
