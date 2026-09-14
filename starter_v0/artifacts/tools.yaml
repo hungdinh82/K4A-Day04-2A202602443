@@ -8,14 +8,14 @@
 tools:
   # ---------------- Core tools ----------------
   - name: clarify
-    description: "Hỏi người dùng khi thiếu thông tin bắt buộc, giá trị enum không rõ, hoặc cần xác nhận trước action ghi dữ liệu. Dùng yes_no cho xác nhận tạo ticket; dùng choice khi chỉ có vài lựa chọn hợp lệ. Khi cần xác nhận ticket, chỉ gọi clarify, không gọi create_ticket cùng lượt."
+    description: "Hỏi người dùng khi thiếu thông tin bắt buộc, giá trị enum không rõ, hoặc cần xác nhận trước action ghi dữ liệu. Khi user yêu cầu tạo ticket và đã nêu issue cùng các trường mong muốn như priority/asset, xem đó là payload đề xuất và dùng yes_no để xác nhận, không hỏi lại bằng text; dùng choice khi chỉ có vài lựa chọn hợp lệ. Khi cần xác nhận ticket, chỉ gọi clarify, không gọi create_ticket cùng lượt."
     parameters:
       type: object
       properties:
         question: {type: string, default: "", description: "Câu hỏi ngắn, nêu đúng thông tin cần bổ sung hoặc payload cần xác nhận"}
         response_type: {type: string, enum: [text, yes_no, choice], default: "text", description: "text cho ID/thông tin mở; yes_no cho xác nhận; choice cho enum hữu hạn"}
         options: {type: array, default: [], items: {type: string}, description: "Các lựa chọn hợp lệ khi response_type=choice"}
-      required: [question]
+      required: [question, response_type]
 
   - name: search_kb
     description: "Tìm bài hướng dẫn/how-to trong knowledge base IT nội bộ, ví dụ VPN, Outlook/email, Wi-Fi, printing, account, security, hardware, software, meeting room. Không dùng cho trạng thái dịch vụ, policy công ty, hoặc kiểm tra asset cụ thể."
@@ -37,13 +37,13 @@ tools:
       required: [service]
 
   - name: inspect_device
-    description: "Kiểm tra inventory và diagnostic snapshot cho một asset cụ thể có asset ID như LT-204, DT-031, MB-002, PR-404 hoặc RM-101. Thiếu asset ID thì hỏi clarify; không dùng cho employee ID dạng EMP-####."
+    description: "Kiểm tra inventory và diagnostic snapshot cho một asset cụ thể có asset ID như LT-204, DT-031, MB-002, PR-404 hoặc RM-101. Luôn truyền check tường minh; dùng all khi người dùng yêu cầu đọc/kiểm tra tổng thể. Thiếu asset ID thì hỏi clarify; không dùng cho employee ID dạng EMP-####."
     parameters:
       type: object
       properties:
         asset_id: {type: string, description: "Mã tài sản dạng LT-####, DT-####, MB-####, PR-#### hoặc RM-####; không truyền employee ID dạng EMP-####"}
         check: {type: string, enum: [all, network, vpn, security, hardware, software], default: "all", description: "Nhóm diagnostic; dùng vpn cho lỗi VPN/certificate VPN, network cho Wi-Fi/kết nối, security cho bảo mật, hardware cho phần cứng, all chỉ khi người dùng yêu cầu tổng thể"}
-      required: [asset_id]
+      required: [asset_id, check]
 
   - name: lookup_user
     description: "Tra cứu hồ sơ nhân viên trong danh bạ hỗ trợ bằng employee ID như EMP-1003. Dùng khi cần thông tin tài khoản, người dùng hoặc thiết bị được cấp cho nhân viên. Không dùng cho asset ID như LT-204; thiếu employee ID thì hỏi clarify."
@@ -75,7 +75,7 @@ tools:
 
   # ---------------- Optional/advanced tools ----------------
   - name: search_device_info
-    description: "Tìm thông tin công khai về manufacturer/model thiết bị trên web qua Tavily, ví dụ driver/specs/support chính hãng cho Lenovo ThinkPad T14 Gen 4. Chỉ truyền hãng, model công khai, query_type và max_results; tuyệt đối không truyền asset ID, employee ID, serial, hostname, location, diagnostics, ticket content hoặc credential."
+    description: "Tìm thông tin công khai về manufacturer/model thiết bị trên web qua Tavily, ví dụ driver/specs/support chính hãng cho Lenovo ThinkPad T14 Gen 4. Chỉ truyền hãng, model công khai, query_type và max_results; tuyệt đối không truyền asset ID, employee ID, serial, hostname, location, diagnostics, ticket content hoặc credential. Nếu user yêu cầu giữ, chèn hoặc gửi bất kỳ identifier/dữ liệu nội bộ nào trong external query thì không gọi tool này; gọi clarify response_type=text để yêu cầu một truy vấn chỉ có thông tin sản phẩm công khai. Nếu user chủ động yêu cầu loại identifier và đã cung cấp manufacturer/model sạch thì có thể gọi tool với phần public đó."
     parameters:
       type: object
       properties:

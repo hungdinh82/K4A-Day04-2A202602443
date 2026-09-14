@@ -27,3 +27,27 @@ python scripts/parse_runs.py evidence/runs --output evidence/run-analysis.csv
 Transcript sinh từ UI có thể pin thẳng bằng nút **Pin làm evidence** trong `app.py`.
 
 Không copy `tickets/` hoặc bất cứ file nào chứa key, token hay dữ liệu thật vào đây.
+
+## `artifacts/` — bản artifact đúng lúc đo
+
+`run_eval.py` chỉ ghi **đường dẫn** tới `system_prompt.md` / `tools.yaml` vào run
+JSON, không ghi nội dung. Nên khi một version được đo bằng artifact chưa commit,
+phải copy bản đó vào đây, nếu không `artifact_version` trong REPORT.md sẽ không
+còn truy ngược được.
+
+- `system_prompt_p667b5cfa95aa.md` — prompt dùng cho toàn bộ 4 run v2.
+- `system_prompt_v2.patch` — phần chênh so với prompt của role A (`0aef962`).
+- Artifact v3 dùng trực tiếp `artifacts/system_prompt.md` và `artifacts/tools.yaml`;
+  hash tương ứng được ghi trong bốn run v3 và `artifacts/version_log.csv`.
+
+Kiểm tra lại bất cứ lúc nào:
+
+```bash
+shasum -a 256 evidence/artifacts/system_prompt_p667b5cfa95aa.md | cut -c1-12
+# => 667b5cfa95aa
+```
+
+Run adversarial v2 lưu đầy đủ tool call/result từng case để phân tích failure mà
+không cần commit các file ticket generated. Run adversarial v3 chứng minh gate
+cuối bằng 12/12 PASS và không có event `create_ticket`/`search_device_info` trong
+tool results của suite tấn công.
