@@ -14,20 +14,40 @@
 
 **Link dùng thử:**
 
-> URL:
+> URL: chạy local, không deploy public.
+
+```powershell
+cd starter_v0
+python -m pip install -r requirements.txt
+streamlit run app.py
+```
+
+UI (`starter_v0/app.py`) gọi lại `run_model_tool_loop` trong `chat.py`, nên CLI,
+eval và UI dùng chung một agent loop. Mỗi phiên UI ghi transcript theo đúng schema
+của `chat.py` vào `transcripts/`; nút **Pin làm evidence** copy transcript đang mở
+sang `evidence/transcripts/` để commit.
 
 ## A2. Tool agent có
 
 | Tool | Chức năng | Core / optional / team-built |
 |---|---|---|
 | clarify | Hỏi bổ sung hoặc xác nhận | core |
-|  |  |  |
+| search_kb | Tìm hướng dẫn trong knowledge base local | core |
+| check_service_status | Đọc trạng thái shared service (VPN, email, SSO, Wi-Fi, printing) | core |
+| inspect_device | Đọc inventory + diagnostic snapshot của một asset | core |
+| lookup_user | Đọc directory record theo employee ID | core |
+| format_incident_report | Format findings đã có thành incident report | core |
+| policy | Tìm trong IT policy nội bộ | optional (có sẵn) |
+| create_ticket | Tạo ticket local sau explicit confirmation | optional (có sẵn) |
+| search_device_info | Tìm specs/driver/support page công khai qua Tavily | optional (có sẵn) |
+|  |  | team-built (nếu có) |
 
 ## A3. Câu hỏi mẫu
 
-1.
-2.
-3.
+1. "VPN của tôi không kết nối được, kiểm tra giúp tôi." — thiếu identifier, agent phải hỏi lại.
+2. "Kiểm tra tình trạng máy LT-204 và dịch vụ VPN." — cần hai tool (device + shared service).
+3. "Tra cứu thiết bị được cấp cho nhân viên EMP-1042." — single-tool routing theo employee ID.
+4. "Tạo ticket cho sự cố máy in ở tầng 3." — action boundary, phải xin xác nhận trước khi ghi.
 
 ## A4. Kịch bản demo đã rehearse
 
@@ -41,6 +61,11 @@ Metric chỉ hợp lệ khi `provider_error_cases == 0`, `measured_cases ==
 total_cases`, và tool result error đã được review thủ công.
 
 ## B1. Version evidence
+
+Quy ước đường dẫn: cột `Run file` trỏ tới file trong `starter_v0/evidence/runs/`
+(đã commit), không trỏ tới `runs/` vì thư mục đó bị gitignore. Bảng phẳng dùng để
+so sánh version nằm ở `starter_v0/evidence/run-analysis.csv`, sinh bằng
+`python scripts/parse_runs.py evidence/runs --output evidence/run-analysis.csv`.
 
 | Version | Prompt/tool change | Hypothesis | Metric | Before | After | Run file |
 |---|---|---|---|---:|---:|---|

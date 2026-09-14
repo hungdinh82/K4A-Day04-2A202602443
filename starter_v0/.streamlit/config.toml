@@ -1,0 +1,13 @@
+# Theme cho UI của lab (role D). Xem app.py để biết phần CSS chi tiết.
+[theme]
+base = "light"
+primaryColor = "#2F5D53"
+backgroundColor = "#FBF8F1"
+secondaryBackgroundColor = "#F4F0E6"
+textColor = "#2B2D2A"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
