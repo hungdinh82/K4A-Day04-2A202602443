@@ -11,10 +11,51 @@ from tools._shared import ROOT, err
 
 TICKET_DIR = ROOT / "tickets"
 ASSET_ID_PATTERN = re.compile(r"^(?:LT|DT|MB|PR|RM)-\d+$", re.IGNORECASE)
-SENSITIVE_DATA_PATTERN = re.compile(
-    r"\b(?:password|passwd|token|api[ _-]?key|mfa|otp|recovery[ _-]?code)(?:\s*[:=]\s*|\s+(?:is|la|là)\s+)\S+",
+SECRET_VALUE_PATTERN = re.compile(
+    r"""
+    \b(?:password|passwd|token|api[ _-]?key|credential|recovery[ _-]?code)\b
+    (?:\s*[:=]\s*|\s+(?:is|la|là)\s+)
+    [A-Za-z0-9][A-Za-z0-9!@#$%^&*._-]{3,}
+    |
+    \b(?:mfa|otp)\b
+    (?:\s*[:=]\s*|\s+(?:is|la|là|code)\s+)
+    \d{4,8}\b
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
+BARE_SECRET_VALUE_PATTERN = re.compile(
+    r"\b(?:password|passwd|token|api[ _-]?key|credential|recovery[ _-]?code)\b"
+    r"\s+([A-Za-z0-9][A-Za-z0-9!@#$%^&*._-]{3,})\b",
     re.IGNORECASE,
 )
+BARE_MFA_CODE_PATTERN = re.compile(r"\b(?:mfa|otp)(?:\s+code)?\s+\d{4,8}\b", re.IGNORECASE)
+SAFE_SECRET_CONTEXT_WORDS = {
+    "access",
+    "enroll",
+    "enrolled",
+    "enrollment",
+    "expired",
+    "expiry",
+    "issue",
+    "login",
+    "policy",
+    "problem",
+    "request",
+    "reset",
+    "rotate",
+    "rotation",
+    "status",
+    "workflow",
+}
+
+
+def _contains_sensitive_data(text: str) -> bool:
+    if SECRET_VALUE_PATTERN.search(text) or BARE_MFA_CODE_PATTERN.search(text):
+        return True
+    for match in BARE_SECRET_VALUE_PATTERN.finditer(text):
+        if match.group(1).casefold() not in SAFE_SECRET_CONTEXT_WORDS:
+            return True
+    return False
 
 
 def create_ticket(
@@ -40,7 +81,7 @@ def create_ticket(
     normalized_asset = (asset_id or "").strip().upper()
     if normalized_asset and not ASSET_ID_PATTERN.fullmatch(normalized_asset):
         return {"tool": "create_ticket", "error": "invalid_asset_id"}
-    if SENSITIVE_DATA_PATTERN.search(normalized_summary):
+    if _contains_sensitive_data(normalized_summary):
         return {
             "tool": "create_ticket",
             "error": "restricted_sensitive_data",

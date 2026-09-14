@@ -23,6 +23,40 @@ QUERY_LABELS = {
     "compatibility": "hardware and operating system compatibility",
 }
 INTERNAL_IDENTIFIER = re.compile(r"\b(?:LT|DT|MB|PR|RM|EMP)-\d+\b", re.IGNORECASE)
+TICKET_IDENTIFIER = re.compile(r"\bLAB-\d{4}-\d{4}\b", re.IGNORECASE)
+PRIVATE_IPV4 = re.compile(
+    r"\b(?:10|127)\.(?:\d{1,3}\.){2}\d{1,3}\b|"
+    r"\b172\.(?:1[6-9]|2\d|3[01])\.(?:\d{1,3}\.)\d{1,3}\b|"
+    r"\b192\.168\.(?:\d{1,3}\.)\d{1,3}\b",
+    re.IGNORECASE,
+)
+EMAIL_ADDRESS = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.IGNORECASE)
+SECRET_VALUE = re.compile(
+    r"""
+    \b(?:password|passwd|token|api[ _-]?key|credential|recovery[ _-]?code)\b
+    (?:\s*[:=]\s*|\s+(?:is|la|là)\s+|\s+)
+    [A-Za-z0-9][A-Za-z0-9!@#$%^&*._-]{3,}
+    |
+    \b(?:mfa|otp)\b
+    (?:\s*[:=]\s*|\s+(?:is|la|là|code)\s+|\s+)
+    \d{4,8}\b
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
+SERIAL_OR_HOSTNAME = re.compile(
+    r"\b(?:serial(?:\s+number)?|s/n|sn|hostname|host)\b\s*[:=]?\s*[A-Za-z0-9][A-Za-z0-9._-]{2,}",
+    re.IGNORECASE,
+)
+INTERNAL_CONTEXT_MARKERS = (
+    "assigned user",
+    "assigned_to",
+    "asset id",
+    "diagnostic",
+    "employee",
+    "internal ticket",
+    "location",
+    "ticket content",
+)
 
 
 def _domain(url: str) -> str:
@@ -47,6 +81,27 @@ def _allowed_official_domain(result_domain: str, official_domains: list[str]) ->
     return any(result_domain == allowed or result_domain.endswith(f".{allowed}") for allowed in official_domains)
 
 
+def _restricted_external_markers(value: str) -> list[str]:
+    folded = value.casefold()
+    markers: list[str] = []
+    if INTERNAL_IDENTIFIER.search(value):
+        markers.append("internal_identifier")
+    if TICKET_IDENTIFIER.search(value):
+        markers.append("ticket_id")
+    if PRIVATE_IPV4.search(value):
+        markers.append("private_ip")
+    if EMAIL_ADDRESS.search(value):
+        markers.append("email_address")
+    if SECRET_VALUE.search(value):
+        markers.append("secret_value")
+    if SERIAL_OR_HOSTNAME.search(value):
+        markers.append("serial_or_hostname")
+    for marker in INTERNAL_CONTEXT_MARKERS:
+        if marker in folded:
+            markers.append(marker.replace(" ", "_"))
+    return sorted(set(markers))
+
+
 def search_device_info(
     manufacturer: str = "",
     model: str = "",
@@ -62,11 +117,13 @@ def search_device_info(
         return {"tool": "search_device_info", "error": "missing_public_product_identity"}
     if len(manufacturer_value) > 80 or len(model_value) > 160:
         return {"tool": "search_device_info", "error": "public_product_identity_too_long"}
-    if INTERNAL_IDENTIFIER.search(f"{manufacturer_value} {model_value}"):
+    restricted_markers = _restricted_external_markers(f"{manufacturer_value} {model_value}")
+    if restricted_markers:
         return {
             "tool": "search_device_info",
-            "error": "restricted_internal_identifier",
-            "message": "Remove asset and employee identifiers before external search.",
+            "error": "restricted_external_search_data",
+            "restricted_fields": restricted_markers,
+            "message": "External search only accepts public manufacturer, public model name, and query type.",
         }
     if query_type_value not in QUERY_LABELS:
         return {"tool": "search_device_info", "error": "invalid_query_type", "query_type": query_type_value}

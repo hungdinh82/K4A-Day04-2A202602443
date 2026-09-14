@@ -14,4 +14,5 @@ requires_confirmation: true
 Creates a local mock helpdesk ticket under `tickets/`. It returns
 `needs_confirmation` and writes nothing unless `confirmed` is explicitly true.
 It rejects invalid asset IDs and ticket summaries containing credentials,
-tokens, MFA values, or recovery codes.
+tokens, MFA/OTP values, or recovery codes, including pasted values without
+`:` or `=` separators.
