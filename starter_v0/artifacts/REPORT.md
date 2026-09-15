@@ -252,8 +252,26 @@ Một khó khăn là nhiều lỗi nhìn giống `wrong_tool` nhưng thực tế
 - **Điều tôi học được từ phần việc này:**
 Tôi học được rằng `tools.yaml` không chỉ là file khai báo kiểu dữ liệu, mà là một phần quan trọng của prompt. Tên tool, mô tả, enum, required fields và boundary đều ảnh hưởng trực tiếp đến hành vi tool calling của model. Tôi cũng hiểu rõ hơn cách kiểm chứng thay đổi bằng eval trace, smoke test, registry sync và version log thay vì chỉ dựa vào cảm giác.
 
-Self-reflection của các thành viên còn lại vẫn cần chính họ bổ sung và commit bằng
-Git identity tương ứng; không được viết thay để giả mạo contribution.
+### Đinh Văn Hùng — 2A202602443
+
+- **Vai trò/phần việc được nhận:** Role A — Prompt Architect và tích hợp cuối.
+- **Những gì tôi đã thay đổi:** Tôi cải thiện `system_prompt.md`, sửa contract G04 và bổ sung runtime gate để chặn xác nhận giả hoặc dữ liệu nội bộ đi ra external tool.
+- **File/commit liên quan:** `starter_v0/artifacts/system_prompt.md`, `starter_v0/tool_boundaries.py`, `starter_v0/agent.py`, `starter_v0/chat.py`; commit `0aef962`, `2bbe856`, `b02bd16`, `0850349`.
+- **Điều tôi học được:** Prompt giúp định hướng nhưng boundary có side effect phải được kiểm tra thêm ở runtime; eval cần đi cùng evidence có thể truy vết.
+
+### Nguyễn Thanh Phong — 2A202602843
+
+- **Vai trò/phần việc được nhận:** Role D — UI, report và evidence.
+- **Những gì tôi đã thay đổi:** Tôi hoàn thiện Streamlit UI, xử lý nhiều dạng response của model, xây pipeline tổng hợp run và cập nhật report theo kết quả 62 case.
+- **File/commit liên quan:** `starter_v0/app.py`, `starter_v0/artifacts/REPORT.md`, `starter_v0/evidence/`, `starter_v0/scripts/build_report_tables.py`; commit `4b05182`, `80c6fd0`, `4cdbea6`.
+- **Điều tôi học được:** Báo cáo tốt phải liên kết metric với đúng artifact/run JSON; UI cũng cần dùng chung agent loop để hành vi demo không lệch với eval.
+
+### Nguyễn Trọng Huy — 2A202602379
+
+- **Vai trò/phần việc được nhận:** Role E — Security hardening và bonus utility.
+- **Những gì tôi đã thay đổi:** Tôi tăng kiểm tra dữ liệu nhạy cảm cho ticket/external search, thêm `lookup_ticket_status` với dữ liệu giả lập và viết smoke test cục bộ.
+- **File/commit liên quan:** `starter_v0/tools/create_ticket/tool.py`, `starter_v0/tools/search_device_info/tool.py`, `starter_v0/tools/lookup_ticket_status/`, `starter_v0/scripts/smoke_member_e.py`; commit `35f566f`.
+- **Điều tôi học được:** Guardrail cần chặn dữ liệu tại lớp thực thi trước network/write, còn bonus tool phải có validation và smoke test độc lập.
 
 Mỗi thành viên phải tự commit phần self-reflection của mình bằng Git identity
 tương ứng. Reflection phải dẫn đến contribution artifact/commit đã nêu ở trên,
